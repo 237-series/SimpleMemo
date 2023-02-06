@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+struct MemoItem {
+    var id=UUID()
+    var date=Date()
+    var contents:String
+}
+
 struct DetailView:View {
     var body: some View {
         Text("Hello, world!")
@@ -16,12 +22,14 @@ struct DetailView:View {
 
 struct ListItem : View {
     var body: some View {
-        VStack(alignment: .leading){
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        
+        VStack( alignment: .leading) {
+            Text("각 일기의 제목")
+                .font(.title3)
+            Text("2023.")
+                .foregroundColor(.gray)
         }
+        
     }
 }
 
@@ -29,14 +37,27 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(0..<20) { num in
-                    NavigationLink {
-                        DetailView()
-                    } label: {
-                        ListItem()
+                Section("색션1") {
+                    ForEach(0..<3) { num in
+                        NavigationLink {
+                            DetailView()
+                        } label: {
+                            ListItem()
+                        }
                     }
-                    
                 }
+                
+                Group {
+                    ForEach(0..<3) { num in
+                        NavigationLink {
+                            DetailView()
+                        } label: {
+                            ListItem()
+                        }
+                    }
+                }
+                
+                
             }
             .navigationTitle("Main view")
             .toolbar {
