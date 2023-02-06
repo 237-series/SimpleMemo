@@ -29,7 +29,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(0..<10) { num in
+                ForEach(0..<20) { num in
                     NavigationLink {
                         DetailView()
                     } label: {
@@ -39,7 +39,25 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("Main view")
+            .toolbar {
+                ToolbarItemGroup {
+                    Button("Add") {}
+                }
+                
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Spacer()
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "square.and.pencil")
+                    }
+                    
+
+                }
+            }
+            
         }
+        
     }
 }
 
