@@ -7,11 +7,32 @@
 
 import SwiftUI
 
-struct MemoItem {
+extension Date {
+    func string() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        dateFormatter.timeZone = .current
+        
+        return dateFormatter.string(from: self)
+    }
+}
+
+struct MemoItem: Identifiable {
     var id=UUID()
     var date=Date()
+    var title:String
     var contents:String
 }
+
+let dummyList:[MemoItem] = [
+    MemoItem(title: "오늘은 신나는 날", contents: ""),
+    MemoItem(title: "반가운 오늘", contents: "")
+]
+
+let itemList:[String:[MemoItem]] = [
+    "2023-01-23": dummyList ,
+    "2023-02-01": dummyList
+]
 
 struct DetailView:View {
     var body: some View {
@@ -21,12 +42,13 @@ struct DetailView:View {
 }
 
 struct ListItem : View {
+    @State var memo:MemoItem
+    
     var body: some View {
-        
         VStack( alignment: .leading) {
-            Text("각 일기의 제목")
+            Text(memo.title)
                 .font(.title3)
-            Text("2023.")
+            Text(memo.date.string())
                 .foregroundColor(.gray)
         }
         
@@ -37,27 +59,38 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             List {
-                Section("색션1") {
-                    ForEach(0..<3) { num in
-                        NavigationLink {
-                            DetailView()
-                        } label: {
-                            ListItem()
+                ForEach(itemList.map{$0.key}, id:\.self) { headDate in
+                    Section(headDate) {
+                        ForEach(itemList[headDate]!) { item in
+                            NavigationLink {
+                                DetailView()
+                            } label: {
+                                ListItem(memo: item)
+                            }
                         }
                     }
                 }
+//                Section("색션1") {
+//                    ForEach(dummyList) { item in
+//                        NavigationLink {
+//                            DetailView()
+//                        } label: {
+//                            ListItem(memo: item)
+//                        }
+//                    }
+//                }
                 
-                Group {
-                    ForEach(0..<3) { num in
-                        NavigationLink {
-                            DetailView()
-                        } label: {
-                            ListItem()
-                        }
-                    }
-                }
-                
-                
+//                Group {
+//                    ForEach(0..<3) { num in
+//                        NavigationLink {
+//                            DetailView()
+//                        } label: {
+//                            ListItem()
+//                        }
+//                    }
+//                }
+//
+//
             }
             .navigationTitle("Main view")
             .toolbar {
