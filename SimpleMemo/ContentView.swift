@@ -29,15 +29,17 @@ let dummyList:[MemoItem] = [
     MemoItem(title: "반가운 오늘", contents: "")
 ]
 
-let itemList:[String:[MemoItem]] = [
-    "2023-01-23": dummyList ,
-    "2023-02-01": dummyList
-]
 
 struct DetailView:View {
+    @State var contents:String = ""
     var body: some View {
-        Text("Hello, world!")
-            .navigationTitle("디테일 화면")
+
+        VStack(alignment: .leading){
+            TextField("메모 내용을 입력하세요", text: $contents, axis: .vertical)
+            Spacer()
+        }
+        .padding()
+//        .navigationTitle("디테일 화면")
     }
 }
 
@@ -56,23 +58,46 @@ struct ListItem : View {
 }
 
 struct ContentView: View {
+    @State var itemList:[MemoItem] = dummyList
+
+    func removeItem(at indexSet:IndexSet) {
+        itemList.remove(atOffsets: indexSet)
+    }
+
+    func moveList(from source:IndexSet, to destination:Int ) {
+        itemList.move(fromOffsets: source, toOffset: destination)
+    }
+
+    func addItem() {
+        itemList.append(MemoItem(title: "새로운 메모", contents: ""))
+    }
+    
     var body: some View {
         NavigationView {
             List {
-                ForEach(itemList.map{$0.key}, id:\.self) { headDate in
-                    Section(headDate) {
-                        ForEach(itemList[headDate]!) { item in
-                            NavigationLink {
-                                DetailView()
-                            } label: {
-                                ListItem(memo: item)
-                            }
-                        }
-                        .onDelete { IndexSet in
-                            
-                        }
+                ForEach(itemList) { item in
+                    NavigationLink {
+                        DetailView()
+                    } label: {
+                        ListItem(memo: item)
                     }
                 }
+                .onDelete(perform: removeItem)
+                .onMove(perform: moveList)
+//                ForEach(itemList.map{$0.key}, id:\.self) { headDate in
+//                    Section(headDate) {
+//                        ForEach(itemList[headDate]!) { item in
+//                            NavigationLink {
+//                                DetailView()
+//                            } label: {
+//                                ListItem(memo: item)
+//                            }
+//                        }
+//                        .onDelete { IndexSet in
+//
+//                        }
+//                    }
+//                }
 //                Section("색션1") {
 //                    ForEach(dummyList) { item in
 //                        NavigationLink {
@@ -98,7 +123,8 @@ struct ContentView: View {
             .navigationTitle("Main view")
             .toolbar {
                 ToolbarItemGroup {
-                    Button("Add") {}
+                    EditButton()
+                    Button("+") {addItem()}
                 }
                 
                 ToolbarItemGroup(placement: .bottomBar) {
