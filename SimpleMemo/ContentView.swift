@@ -31,15 +31,38 @@ let dummyList:[MemoItem] = [
 
 
 struct DetailView:View {
-    @State var contents:String = ""
+    @Environment(\.dismiss) private var dismiss
+    @State var contents:String
+    @State var title:String
+    @State var createAt:Date
+    
     var body: some View {
 
         VStack(alignment: .leading){
-            TextField("메모 내용을 입력하세요", text: $contents, axis: .vertical)
+            TextField("타이틀 입력", text: $title)
+                .font(.title)
+            Text(createAt.string())
+            TextField("메모 내용 입력", text: $contents, axis: .vertical)
+                .padding()
+            //TextField("메모 내용을 입력하세요", text: $contents, axis: .vertical)
             Spacer()
         }
         .padding()
-//        .navigationTitle("디테일 화면")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup {
+                Button {
+                    saveMemo()
+                } label: {
+                    Image(systemName: "checkmark.circle")
+                }
+
+            }
+        }
+    }
+    
+    func saveMemo() {
+        dismiss()
     }
 }
 
@@ -77,7 +100,7 @@ struct ContentView: View {
             List {
                 ForEach(itemList) { item in
                     NavigationLink {
-                        DetailView()
+                        DetailView(contents: item.contents, title: item.title, createAt: item.date)
                     } label: {
                         ListItem(memo: item)
                     }
