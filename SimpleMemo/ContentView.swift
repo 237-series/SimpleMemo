@@ -68,6 +68,9 @@ struct ContentView: View {
                                 ListItem(memo: item)
                             }
                         }
+                        .onDelete { IndexSet in
+                            
+                        }
                     }
                 }
 //                Section("색션1") {
