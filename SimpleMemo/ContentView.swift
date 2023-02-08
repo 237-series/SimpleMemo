@@ -37,14 +37,15 @@ struct MemoItem: Identifiable, Codable {
 struct DetailView:View {
     @Environment(\.dismiss) private var dismiss
     @Binding var memoItem:MemoItem
-    
+    @State var contents:String = ""
+    @State var title:String = ""
     var body: some View {
 
         VStack(alignment: .leading){
-            TextField("타이틀 입력", text: $memoItem.title)
+            TextField("타이틀 입력", text: $title)
                 .font(.title)
             Text($memoItem.date.wrappedValue.fullString())
-            TextField("메모 내용 입력", text: $memoItem.contents, axis: .vertical)
+            TextField("메모 내용 입력", text: $contents, axis: .vertical)
                 .padding()
             //TextField("메모 내용을 입력하세요", text: $contents, axis: .vertical)
             Spacer()
@@ -64,16 +65,16 @@ struct DetailView:View {
     }
     
     func saveMemo() {
-        let manager:DataManager = DataManager.shared
-        manager.dataList = manager.dataList
-        DataManager.shared.dataSync()
+        memoItem.contents = contents
+        memoItem.title = title
+        //DataManager.shared.save(MemoItem: memoItem)
         
         dismiss()
     }
 }
 
 struct ListItem : View {
-    @State var memo:MemoItem
+    @Binding var memo:MemoItem
     
     var body: some View {
         VStack( alignment: .leading) {
@@ -108,48 +109,16 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            List(manager.dataList.indices, id:\.self) { idx in
-                NavigationLink {
-                    DetailView(memoItem: $manager.dataList[idx])
-                } label: {
-                    ListItem(memo: manager.dataList[idx])
+            List {
+                ForEach($manager.dataList) { $item in
+                    NavigationLink {
+                        DetailView(memoItem: $item, contents: item.contents, title: item.title)
+                    } label: {
+                        ListItem(memo: $item)
+                    }
+
+                    
                 }
-                
-//                ForEach(itemList.map{$0.key}, id:\.self) { headDate in
-//                    Section(headDate) {
-//                        ForEach(itemList[headDate]!) { item in
-//                            NavigationLink {
-//                                DetailView()
-//                            } label: {
-//                                ListItem(memo: item)
-//                            }
-//                        }
-//                        .onDelete { IndexSet in
-//
-//                        }
-//                    }
-//                }
-//                Section("색션1") {
-//                    ForEach(dummyList) { item in
-//                        NavigationLink {
-//                            DetailView()
-//                        } label: {
-//                            ListItem(memo: item)
-//                        }
-//                    }
-//                }
-                
-//                Group {
-//                    ForEach(0..<3) { num in
-//                        NavigationLink {
-//                            DetailView()
-//                        } label: {
-//                            ListItem()
-//                        }
-//                    }
-//                }
-//
-//
             }
             
             .navigationTitle("Main view")

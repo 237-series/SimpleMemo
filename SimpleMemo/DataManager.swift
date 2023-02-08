@@ -15,7 +15,6 @@ let dummyList:[MemoItem] = [
 
 class DataManager:ObservableObject {
     static let DATA_LIST_KEY = "DATA_LIST_KEY"
-    
     static let shared = DataManager()
     
     @Published var dataList:[MemoItem] = []
@@ -71,7 +70,8 @@ class DataManager:ObservableObject {
         if let data = aItem {
             for (idx, (item)) in dataList.enumerated() {
                 if item.id.hashValue == data.id.hashValue {
-                    dataList[idx] = data
+                    dataList.remove(at: idx)
+                    dataList.append(item)
                 }
             }
             
@@ -79,6 +79,12 @@ class DataManager:ObservableObject {
         
         return false
     }
+    
+    func updateList() {
+        let list = dataList
+        dataList = list
+    }
+    
     
     func remove(_ indexSet:IndexSet) -> Bool {
         dataList.remove(atOffsets: indexSet)
