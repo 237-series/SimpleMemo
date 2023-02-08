@@ -147,9 +147,13 @@ struct ContentView: View {
             .toolbar {
                 ToolbarItemGroup {
                     EditButton()
-                    Button("+") {addItem()}
+                    Button {
+                        addItem()
+                    } label: {
+                        Image(systemName: "square.and.pencil")
+                    }
                 }
-                
+                /*
                 ToolbarItemGroup(placement: .bottomBar) {
                     Spacer()
                     Button {
@@ -159,7 +163,7 @@ struct ContentView: View {
                     }
                     
 
-                }
+                }*/
             }
             
         }
