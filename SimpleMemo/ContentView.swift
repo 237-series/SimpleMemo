@@ -15,34 +15,36 @@ extension Date {
         
         return dateFormatter.string(from: self)
     }
+    
+    func fullString() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.timeZone = .current
+        
+        return dateFormatter.string(from: self)
+    }
 }
 
-struct MemoItem: Identifiable {
+struct MemoItem: Identifiable, Codable {
     var id=UUID()
     var date=Date()
     var title:String
     var contents:String
 }
 
-let dummyList:[MemoItem] = [
-    MemoItem(title: "오늘은 신나는 날", contents: ""),
-    MemoItem(title: "반가운 오늘", contents: "")
-]
 
 
 struct DetailView:View {
     @Environment(\.dismiss) private var dismiss
-    @State var contents:String
-    @State var title:String
-    @State var createAt:Date
+    @Binding var memoItem:MemoItem
     
     var body: some View {
 
         VStack(alignment: .leading){
-            TextField("타이틀 입력", text: $title)
+            TextField("타이틀 입력", text: $memoItem.title)
                 .font(.title)
-            Text(createAt.string())
-            TextField("메모 내용 입력", text: $contents, axis: .vertical)
+            Text($memoItem.date.wrappedValue.fullString())
+            TextField("메모 내용 입력", text: $memoItem.contents, axis: .vertical)
                 .padding()
             //TextField("메모 내용을 입력하세요", text: $contents, axis: .vertical)
             Spacer()
@@ -62,6 +64,10 @@ struct DetailView:View {
     }
     
     func saveMemo() {
+        let manager:DataManager = DataManager.shared
+        manager.dataList = manager.dataList
+        DataManager.shared.dataSync()
+        
         dismiss()
     }
 }
@@ -73,7 +79,7 @@ struct ListItem : View {
         VStack( alignment: .leading) {
             Text(memo.title)
                 .font(.title3)
-            Text(memo.date.string())
+            Text(memo.date.fullString())
                 .foregroundColor(.gray)
         }
         
@@ -81,32 +87,34 @@ struct ListItem : View {
 }
 
 struct ContentView: View {
+    @StateObject var manager:DataManager = DataManager.shared
     @State var itemList:[MemoItem] = dummyList
 
     func removeItem(at indexSet:IndexSet) {
-        itemList.remove(atOffsets: indexSet)
+        //itemList.remove(atOffsets: indexSet)
+        manager.remove(indexSet)
     }
 
     func moveList(from source:IndexSet, to destination:Int ) {
-        itemList.move(fromOffsets: source, toOffset: destination)
+        //itemList.move(fromOffsets: source, toOffset: destination)
+        manager.move(from: source, to: destination)
     }
 
     func addItem() {
-        itemList.append(MemoItem(title: "새로운 메모", contents: ""))
+//        itemList.append(MemoItem(title: "새로운 메모", contents: ""))
+        manager.add(MemoItem: MemoItem(title: "새로운 메모", contents: ""))
     }
     
+
     var body: some View {
         NavigationView {
-            List {
-                ForEach(itemList) { item in
-                    NavigationLink {
-                        DetailView(contents: item.contents, title: item.title, createAt: item.date)
-                    } label: {
-                        ListItem(memo: item)
-                    }
+            List(manager.dataList.indices, id:\.self) { idx in
+                NavigationLink {
+                    DetailView(memoItem: $manager.dataList[idx])
+                } label: {
+                    ListItem(memo: manager.dataList[idx])
                 }
-                .onDelete(perform: removeItem)
-                .onMove(perform: moveList)
+                
 //                ForEach(itemList.map{$0.key}, id:\.self) { headDate in
 //                    Section(headDate) {
 //                        ForEach(itemList[headDate]!) { item in
@@ -143,6 +151,7 @@ struct ContentView: View {
 //
 //
             }
+            
             .navigationTitle("Main view")
             .toolbar {
                 ToolbarItemGroup {
